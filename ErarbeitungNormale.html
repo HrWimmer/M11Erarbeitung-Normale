@@ -1,0 +1,1062 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Q11 Mathematik: Die Normale</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+            color: #1f2937;
+        }
+
+        .draggable {
+            cursor: grab;
+            transition: transform 0.1s;
+        }
+        
+        .draggable:active {
+            cursor: grabbing;
+            transform: scale(0.95);
+        }
+
+        .dropzone {
+            min-width: 60px;
+            min-height: 40px;
+            border: 2px dashed #9ca3af;
+            border-radius: 0.5rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #f9fafb;
+            vertical-align: middle;
+            transition: all 0.2s;
+        }
+
+        .dropzone.drag-over {
+            background-color: #dbeafe;
+            border-color: #3b82f6;
+            border-style: solid;
+        }
+
+        .fraction {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            vertical-align: middle;
+            margin: 0 0.5rem;
+        }
+
+        .fraction-line {
+            height: 2px;
+            background-color: #1f2937;
+            width: 100%;
+            margin: 2px 0;
+        }
+
+        /* Schieberegler optisch stark hervorheben */
+        .slider-container {
+            position: relative;
+            width: 100%;
+            padding: 10px 0;
+        }
+
+        input[type=range] {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            background: transparent;
+        }
+        
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 28px;
+            width: 28px;
+            border-radius: 50%;
+            background: #ffffff;
+            cursor: pointer;
+            margin-top: -10px;
+            border: 4px solid #1d4ed8;
+            box-shadow: 0 0 8px rgba(0,0,0,0.5);
+        }
+        
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 10px;
+            cursor: pointer;
+            background: #3b82f6; /* Deutliches Blau */
+            border-radius: 5px;
+            border: 1px solid #2563eb;
+        }
+        
+        input[type=range]::-moz-range-track {
+            width: 100%;
+            height: 10px;
+            cursor: pointer;
+            background: #3b82f6;
+            border-radius: 5px;
+            border: 1px solid #2563eb;
+        }
+
+        input[type=range]::-moz-range-thumb {
+            height: 28px;
+            width: 28px;
+            border-radius: 50%;
+            background: #ffffff;
+            cursor: pointer;
+            border: 4px solid #1d4ed8;
+            box-shadow: 0 0 8px rgba(0,0,0,0.5);
+        }
+
+        .success-anim {
+            animation: bounceIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes bounceIn {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        /* Confetti Canvas */
+        #confetti {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9999;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+    <canvas id="confetti"></canvas>
+
+    <div class="max-w-4xl mx-auto space-y-8">
+        
+        <!-- Header -->
+        <header class="bg-white rounded-2xl shadow-sm p-8 text-center border-t-4 border-blue-600">
+            <h1 class="text-3xl font-bold text-gray-800 mb-2">Die Normale an einem Graphen</h1>
+            <p class="text-gray-600">Q11 Mathematik – Gymnasium Bayern</p>
+        </header>
+
+        <!-- Intro Text -->
+        <section class="bg-white rounded-2xl shadow-sm p-8">
+            <h2 class="text-2xl font-semibold mb-4 text-blue-700">Worum geht's?</h2>
+            
+            <div class="bg-blue-50 border-l-4 border-blue-500 p-4 mb-6 rounded-r-lg">
+                <h3 class="font-bold text-blue-800 mb-2">Motivation: Warum brauchen wir die Normale überhaupt?</h3>
+                <p class="text-sm text-gray-700">
+                    Stell dir vor, du entwickelst ein Videospiel oder eine 3D-Animation. Licht trifft auf einen gekrümmten Gegenstand (z.B. einen Spiegel oder ein Auto). 
+                    Um zu berechnen, in welche Richtung das Licht <strong>reflektiert</strong> wird, benötigt der Computer das sogenannte <strong>Lot</strong> – eine Linie, die exakt senkrecht auf der Oberfläche steht.
+                    In der Mathematik nennen wir diese Linie die <strong>Normale</strong>.
+                </p>
+                
+                <div class="mt-4 mb-2 flex justify-center bg-white p-4 rounded-xl border border-blue-100 shadow-sm overflow-hidden">
+                    <svg width="400" height="200" viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg" style="max-width: 100%; height: auto;">
+                        <defs>
+                            <marker id="arrowHead" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+                                <path d="M 0 0 L 8 4 L 0 8 Z" fill="#eab308" />
+                            </marker>
+                        </defs>
+                        <!-- Curve (mathematisch exakt berechnet) -->
+                        <path d="M 40 80 Q 200 168 360 144" fill="none" stroke="#9ca3af" stroke-width="4" />
+                        <text x="315" y="125" fill="#6b7280" font-size="14" font-weight="600">Oberfläche</text>
+                        
+                        <!-- Tangente -->
+                        <line x1="40" y1="108" x2="360" y2="172" stroke="#ef4444" stroke-width="2" />
+                        <text x="280" y="175" fill="#ef4444" font-size="14" font-weight="600">Tangente</text>
+                        
+                        <!-- Normal (Lot) -->
+                        <line x1="200" y1="140" x2="220" y2="40" stroke="#16a34a" stroke-width="3" stroke-dasharray="8,6" />
+                        <text x="230" y="45" fill="#16a34a" font-size="14" font-weight="bold">Lot (Normale)</text>
+                        
+                        <!-- Right Angle Marker -->
+                        <path d="M 215 143 L 218 128 L 203 125" fill="none" stroke="#16a34a" stroke-width="2" />
+                        
+                        <!-- Light in -->
+                        <line x1="60" y1="40" x2="200" y2="140" stroke="#eab308" stroke-width="4" marker-end="url(#arrowHead)" />
+                        <text x="45" y="30" fill="#ca8a04" font-size="14" font-weight="600">Lichtstrahl</text>
+                        
+                        <!-- Light out (exakter Reflexionswinkel) -->
+                        <line x1="200" y1="140" x2="350" y2="106" stroke="#eab308" stroke-width="4" marker-end="url(#arrowHead)" />
+                        <text x="290" y="95" fill="#ca8a04" font-size="14" font-weight="600">Reflexion</text>
+                        
+                        <!-- Point P -->
+                        <circle cx="200" cy="140" r="5" fill="#2563eb" />
+                    </svg>
+                </div>
+            </div>
+
+            <p class="mb-4">
+                Ihr wisst bereits: Die Tangente berührt den Graphen einer Funktion und hat dort die Steigung \( m_t = f'(x_0) \).
+            </p>
+            <p>
+                Heute lernen wir die <strong>Normale</strong> kennen. Sie ist eine Gerade, die im Berührpunkt \( P \) <strong>senkrecht (orthogonal)</strong> zur Tangente verläuft.
+                Finde in der Simulation heraus, wie man ihre Steigung \( m_n \) berechnet!
+            </p>
+        </section>
+
+        <!-- Interactive Simulation -->
+        <section class="bg-white rounded-2xl shadow-sm p-8">
+            <h2 class="text-2xl font-semibold mb-4 text-blue-700">Interaktive Simulation</h2>
+            <p class="text-sm text-gray-500 mb-4">
+                Gegeben ist die Funktion <strong>\( f(x) = 0.5x^2 + 1 \)</strong>. Bewege den Schieberegler, um den Punkt P (Berührpunkt) auf dem Graphen zu verschieben.
+            </p>
+            
+            <div class="relative bg-gray-50 border border-gray-200 rounded-lg p-2 mb-6 shadow-inner" style="height: 400px;">
+                <canvas id="mathCanvas" class="w-full h-full rounded"></canvas>
+                
+                <!-- Legend inside canvas area -->
+                <div class="absolute top-4 left-4 bg-white/90 p-3 rounded shadow text-sm border border-gray-200">
+                    <div class="flex items-center gap-2 mb-1"><span class="w-4 h-1 bg-black block"></span> \( f(x) = 0.5x^2 + 1 \)</div>
+                    <div class="flex items-center gap-2 mb-1"><span class="w-4 h-1 bg-red-500 block"></span> Tangente t</div>
+                    <div class="flex items-center gap-2"><span class="w-4 h-1 bg-green-600 block"></span> Normale n</div>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-4 bg-blue-50 p-4 rounded-xl border border-blue-100 slider-container">
+                <label for="x0-slider" class="font-semibold whitespace-nowrap">\( x_0 \) = <span id="x0-display" class="inline-block w-8 text-blue-700">1.0</span></label>
+                <input type="range" id="x0-slider" min="-3" max="3" step="0.1" value="1">
+            </div>
+            <div id="sim-stats" class="grid grid-cols-3 gap-4 mt-4 text-center font-mono text-sm">
+                <div class="bg-gray-100 p-2 rounded">P(<span id="p-x">1</span> | <span id="p-y">1.5</span>)</div>
+                <div class="bg-gray-100 p-2 rounded">\( m_t \) = <span id="m-t">1.00</span></div>
+                <div class="bg-gray-100 p-2 rounded">\( m_n \) = <span id="m-n">-1.00</span></div>
+            </div>
+        </section>
+
+        <!-- Task 1: Discovery -->
+        <section class="bg-white rounded-2xl shadow-sm p-8 border-l-4 border-purple-500">
+            <h2 class="text-xl font-semibold mb-3 text-purple-700">Aufgabe 1: Das Gesetz der Senkrechten entdecken</h2>
+            <p class="mb-4 text-gray-700">
+                Bewege den Slider an verschiedene Positionen. Notiere dir die Steigung der Tangente \( m_t \) und die der Normalen \( m_n \). 
+                Berechne dann jeweils das Produkt aus beiden Werten. Was fällt dir auf?
+            </p>
+            
+            <div class="space-y-4 text-lg bg-purple-50/50 p-6 rounded-xl border border-purple-100">
+                <div class="grid grid-cols-3 gap-4 font-mono text-sm mb-2 text-center font-bold">
+                    <div>\( x_0 \)</div>
+                    <div>Abgelesene Werte</div>
+                    <div>Produkt \( m_t \cdot m_n \)</div>
+                </div>
+                <div class="grid grid-cols-3 gap-4 items-center text-center">
+                    <div>\( 1.0 \)</div>
+                    <div>\( m_t = 1 \), \( m_n = -1 \)</div>
+                    <div><input type="number" id="disc-prod1" class="w-20 px-2 py-1 border-b-2 border-purple-300 bg-transparent focus:outline-none focus:border-purple-600 text-center" step="1"></div>
+                </div>
+                <div class="grid grid-cols-3 gap-4 items-center text-center">
+                    <div>\( 2.0 \)</div>
+                    <div>\( m_t = 2 \), \( m_n = -0.5 \)</div>
+                    <div><input type="number" id="disc-prod2" class="w-20 px-2 py-1 border-b-2 border-purple-300 bg-transparent focus:outline-none focus:border-purple-600 text-center" step="1"></div>
+                </div>
+                <div class="grid grid-cols-3 gap-4 items-center text-center">
+                    <div>\( -1.0 \)</div>
+                    <div>\( m_t = -1 \), \( m_n = 1 \)</div>
+                    <div><input type="number" id="disc-prod3" class="w-20 px-2 py-1 border-b-2 border-purple-300 bg-transparent focus:outline-none focus:border-purple-600 text-center" step="1"></div>
+                </div>
+                <div class="grid grid-cols-3 gap-4 items-center text-center">
+                    <div>\( 0.5 \)</div>
+                    <div>\( m_t = 0.5 \), \( m_n = -2 \)</div>
+                    <div><input type="number" id="disc-prod4" class="w-20 px-2 py-1 border-b-2 border-purple-300 bg-transparent focus:outline-none focus:border-purple-600 text-center" step="1"></div>
+                </div>
+                <div class="grid grid-cols-3 gap-4 items-center text-center">
+                    <div>\( 2.5 \)</div>
+                    <div>\( m_t = 2.5 \), \( m_n = -0.4 \)</div>
+                    <div><input type="number" id="disc-prod5" class="w-20 px-2 py-1 border-b-2 border-purple-300 bg-transparent focus:outline-none focus:border-purple-600 text-center" step="1"></div>
+                </div>
+                <div class="grid grid-cols-3 gap-4 items-center text-center">
+                    <div>\( -0.8 \)</div>
+                    <div>\( m_t = -0.8 \), \( m_n = 1.25 \)</div>
+                    <div><input type="number" id="disc-prod6" class="w-20 px-2 py-1 border-b-2 border-purple-300 bg-transparent focus:outline-none focus:border-purple-600 text-center" step="1"></div>
+                </div>
+                <div class="mt-6 pt-4 border-t border-purple-200">
+                    <strong>Schlussfolgerung:</strong> Für zwei senkrechte Geraden gilt immer die Regel: <br>
+                    \( m_t \cdot m_n = \) <input type="number" id="disc-rule" class="w-20 px-2 py-1 border-b-2 border-purple-300 bg-transparent focus:outline-none focus:border-purple-600 text-center" step="1">
+                </div>
+                <button onclick="checkDiscovery()" class="mt-4 px-6 py-2 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg shadow transition-colors">Regel überprüfen</button>
+            </div>
+            <div id="feedback-discovery" class="mt-4 hidden p-4 rounded-lg font-semibold success-anim"></div>
+        </section>
+
+        <!-- Task 2: Dynamischer Lückentext -->
+        <section class="bg-white rounded-2xl shadow-sm p-8 border-l-4 border-indigo-500">
+            <h2 class="text-xl font-semibold mb-3 text-indigo-700">Aufgabe 2: Regel anwenden</h2>
+            <p class="mb-4 text-gray-700">
+                Stelle in der Simulation den Berührpunkt auf <strong>\( x_0 = -0.5 \)</strong> ein. 
+                Lies die Werte nicht einfach ab, sondern berechne sie im Kopf mit deiner neuen Regel und fülle die Lücken!
+                <em>(Hinweis: \( f'(x) = x \))</em>
+            </p>
+            
+            <div class="space-y-4 text-lg bg-indigo-50/50 p-6 rounded-xl border border-indigo-100">
+                <div>
+                    1. Die Steigung der Tangente an der Stelle \( x_0 = -0.5 \) ist \( m_t = \) 
+                    <input type="number" id="task2-mt" class="w-20 px-2 py-1 border-b-2 border-indigo-300 bg-transparent focus:outline-none focus:border-indigo-600 text-center" step="0.1">.
+                </div>
+                <div>
+                    2. Mit deiner entdeckten Formel muss die Steigung der Normale \( m_n = \) 
+                    <input type="number" id="task2-mn" class="w-20 px-2 py-1 border-b-2 border-indigo-300 bg-transparent focus:outline-none focus:border-indigo-600 text-center" step="0.1"> sein.
+                </div>
+                <button onclick="checkTask2()" class="mt-4 px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg shadow transition-colors">Prüfen</button>
+            </div>
+            <div id="feedback-task2" class="mt-4 hidden p-4 rounded-lg font-semibold success-anim"></div>
+        </section>
+
+        <!-- Task 3: Slider-Target -->
+        <section class="bg-white rounded-2xl shadow-sm p-8 border-l-4 border-amber-500">
+            <h2 class="text-xl font-semibold mb-3 text-amber-700">Aufgabe 3: Entdeckendes Einstellen</h2>
+            <p class="mb-4 text-gray-700">
+                Finde die x-Koordinate (\( x_0 \)) auf dem Graphen, an der die <strong>Normale exakt die Steigung \( m_n = 0.5 \)</strong> hat. 
+                Verändere den Schieberegler oben, bis du den Punkt gefunden hast!
+            </p>
+            <div class="bg-amber-50 p-6 rounded-xl border border-amber-100 text-center">
+                <p class="mb-4 font-mono text-lg">Gesucht: \( x_0 \), sodass \( m_n = 0.5 \)</p>
+                <div class="flex justify-center gap-4">
+                    <button id="btn-start-task3" onclick="startTask3()" class="px-6 py-2 bg-gray-600 hover:bg-gray-700 text-white font-semibold rounded-lg shadow transition-colors">Herausforderung starten (versteckt m_n)</button>
+                    <button id="btn-check-task3" onclick="checkTask3()" class="hidden px-6 py-2 bg-amber-500 hover:bg-amber-600 text-white font-semibold rounded-lg shadow transition-colors">Position prüfen</button>
+                </div>
+            </div>
+            <div id="feedback-task3" class="mt-4 hidden p-4 rounded-lg font-semibold success-anim"></div>
+        </section>
+
+        <!-- Task 4: Drag and Drop Formel -->
+        <section class="bg-white rounded-2xl shadow-sm p-8 border-l-4 border-emerald-500">
+            <h2 class="text-xl font-semibold mb-3 text-emerald-700">Aufgabe 4: Die Normalengleichung am Beispiel</h2>
+            <p class="mb-4 text-gray-700">
+                Wir bestimmen nun die Normalengleichung für \( f(x) = 0.5x^2 + 1 \) an der Stelle \( x_0 = 2 \). <br>
+                Zuerst berechnen wir: \( f(2) = 3 \) und \( f'(2) = 2 \).
+            </p>
+            <p class="mb-4 text-gray-700">
+                Setze nun die passenden Bausteine per Drag & Drop in die Platzhalter ein, um die Normalengleichung <strong>\( n(x) \)</strong> für dieses konkrete Beispiel zu konstruieren!
+            </p>
+            
+            <!-- Bausteine -->
+            <div class="flex flex-wrap gap-3 mb-8 p-4 bg-gray-100 rounded-xl" id="draggables-container">
+                <div class="draggable bg-white px-4 py-2 border border-gray-300 shadow-sm rounded font-mono font-bold text-lg text-emerald-800" draggable="true" data-value="-1">-1</div>
+                <div class="draggable bg-white px-4 py-2 border border-gray-300 shadow-sm rounded font-mono font-bold text-lg text-emerald-800" draggable="true" data-value="2">2</div>
+                <div class="draggable bg-white px-4 py-2 border border-gray-300 shadow-sm rounded font-mono font-bold text-lg text-emerald-800" draggable="true" data-value="2">2</div>
+                <div class="draggable bg-white px-4 py-2 border border-gray-300 shadow-sm rounded font-mono font-bold text-lg text-emerald-800" draggable="true" data-value="3">3</div>
+            </div>
+
+            <!-- Ziel-Formel -->
+            <div class="flex items-center justify-center bg-emerald-50 py-8 rounded-xl border border-emerald-200 text-xl font-mono overflow-x-auto">
+                <span>\( n(x) = \) </span>
+                <div class="fraction mx-3">
+                    <div class="dropzone" data-expected="-1" id="dz1"></div>
+                    <div class="fraction-line"></div>
+                    <div class="dropzone" data-expected="2" id="dz2"></div>
+                </div>
+                <span> &middot; ( \( x \) - </span>
+                <div class="dropzone mx-2" data-expected="2" id="dz3"></div>
+                <span> ) + </span>
+                <div class="dropzone mx-2" data-expected="3" id="dz4"></div>
+            </div>
+
+            <div class="text-center mt-6">
+                 <button onclick="checkTask4()" class="px-6 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-lg shadow transition-colors">Gleichung überprüfen</button>
+            </div>
+            <div id="feedback-task4" class="mt-4 hidden p-4 rounded-lg font-semibold success-anim"></div>
+        </section>
+
+        <!-- Task 5: Grafische Überprüfung (Schulbuchaufgabe) -->
+        <section class="bg-white rounded-2xl shadow-sm p-8 border-l-4 border-rose-500">
+            <h2 class="text-xl font-semibold mb-3 text-rose-700">Aufgabe 5: Schulbuchaufgabe auswerten</h2>
+            <p class="mb-4 text-gray-700 font-medium">
+                Ermitteln Sie die Gleichungen der Tangente und der Normalen an den Graphen \( G_f \) der Funktion \( f \) im Punkt \( P \). 
+                Bestimmen Sie die Größe der Steigungswinkel beider Geraden.
+            </p>
+            
+            <div class="mb-6 bg-rose-50 p-4 rounded-xl border border-rose-100">
+                <label for="task5-select" class="block text-sm font-semibold text-gray-700 mb-2">Wähle eine Teilaufgabe:</label>
+                <select id="task5-select" onchange="updateTask5UI()" class="w-full md:w-auto px-4 py-2 bg-white border border-rose-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-rose-500 text-lg font-mono">
+                    <option value="a">a) f(x) = x², P(2|4)</option>
+                    <option value="b">b) f(x) = -1/8 x², P(-2|-0.5)</option>
+                    <option value="c">c) f(x) = x² - 5x, P(0|0)</option>
+                </select>
+            </div>
+            
+            <div class="bg-rose-50 p-6 rounded-xl border border-rose-100 grid md:grid-cols-2 gap-6 items-start">
+                <div class="space-y-4">
+                    <h3 class="font-semibold text-rose-800 border-b border-rose-200 pb-1">Tangente</h3>
+                    <div class="flex items-center gap-2 text-lg font-mono">
+                        \( t(x) = \) 
+                        <input type="number" id="plot-mt" class="w-20 px-2 py-1 border-b-2 border-rose-300 bg-transparent focus:outline-none focus:border-rose-600 text-center" placeholder="m" step="0.01">
+                        \( x + \)
+                        <input type="number" id="plot-tt" class="w-20 px-2 py-1 border-b-2 border-rose-300 bg-transparent focus:outline-none focus:border-rose-600 text-center" placeholder="t" step="0.01">
+                    </div>
+                    <div class="flex items-center gap-2 text-lg font-mono">
+                        \( \alpha_t = \) 
+                        <input type="number" id="plot-at" class="w-24 px-2 py-1 border-b-2 border-rose-300 bg-transparent focus:outline-none focus:border-rose-600 text-center" placeholder="Grad" step="0.1"> \( ^\circ \)
+                    </div>
+                </div>
+
+                <div class="space-y-4">
+                    <h3 class="font-semibold text-rose-800 border-b border-rose-200 pb-1">Normale</h3>
+                    <div class="flex items-center gap-2 text-lg font-mono">
+                        \( n(x) = \) 
+                        <input type="number" id="plot-mn" class="w-20 px-2 py-1 border-b-2 border-rose-300 bg-transparent focus:outline-none focus:border-rose-600 text-center" placeholder="m" step="0.01">
+                        \( x + \)
+                        <input type="number" id="plot-tn" class="w-20 px-2 py-1 border-b-2 border-rose-300 bg-transparent focus:outline-none focus:border-rose-600 text-center" placeholder="t" step="0.01">
+                    </div>
+                    <div class="flex items-center gap-2 text-lg font-mono">
+                        \( \alpha_n = \) 
+                        <input type="number" id="plot-an" class="w-24 px-2 py-1 border-b-2 border-rose-300 bg-transparent focus:outline-none focus:border-rose-600 text-center" placeholder="Grad" step="0.1"> \( ^\circ \)
+                    </div>
+                </div>
+                
+                <div class="md:col-span-2 text-center mt-2">
+                    <button onclick="checkAndPlotTask5()" class="px-6 py-2 bg-rose-600 hover:bg-rose-700 text-white font-semibold rounded-lg shadow transition-colors">Eingaben prüfen & plotten</button>
+                    <p class="text-xs text-rose-600 mt-2">Tipp: Den Steigungswinkel \( \alpha \) in Grad berechnet man über \( \tan(\alpha) = m \).</p>
+                </div>
+            </div>
+            
+            <div id="plot-container" class="hidden mt-6">
+                <div class="relative bg-white border border-gray-200 rounded-lg p-2 shadow-inner h-80 w-full">
+                    <canvas id="verifyCanvas" class="w-full h-full rounded"></canvas>
+                </div>
+                <div id="feedback-task5" class="mt-4 p-4 rounded-lg font-semibold success-anim"></div>
+            </div>
+        </section>
+
+        <!-- Task 6: Infinity Trainer -->
+        <section class="bg-white rounded-2xl shadow-sm p-8 border-l-4 border-cyan-500">
+            <h2 class="text-xl font-semibold mb-3 text-cyan-700">Aufgabe 6: Der Endlos-Trainer</h2>
+            <p class="mb-4 text-gray-700">
+                Du willst noch sicherer werden? Hier kannst du dir immer wieder neue Aufgaben generieren lassen. Berechne die Normalengleichung in der Form \( y = mx + t \).
+            </p>
+            
+            <div class="bg-cyan-50 p-6 rounded-xl border border-cyan-100 text-center">
+                <div id="infinity-function" class="text-xl font-bold text-cyan-800 mb-4 h-8"></div>
+                <div id="infinity-question" class="text-lg font-mono mb-6">
+                    Klicke auf "Neue Aufgabe generieren", um zu starten!
+                </div>
+                <div id="infinity-inputs" class="hidden flex items-center justify-center gap-2 text-xl font-mono mb-6">
+                    \( n(x) = \) 
+                    <input type="number" id="inf-m" class="w-20 px-2 py-1 border-b-2 border-cyan-300 bg-transparent focus:outline-none focus:border-cyan-600 text-center" placeholder="m" step="0.1">
+                    \( x + \)
+                    <input type="number" id="inf-t" class="w-20 px-2 py-1 border-b-2 border-cyan-300 bg-transparent focus:outline-none focus:border-cyan-600 text-center" placeholder="t" step="0.1">
+                </div>
+                
+                <div class="flex justify-center gap-4">
+                    <button id="btn-inf-check" onclick="checkInfinity()" class="hidden px-6 py-2 bg-cyan-600 hover:bg-cyan-700 text-white font-semibold rounded-lg shadow transition-colors">Überprüfen</button>
+                    <button onclick="generateInfinity()" class="px-6 py-2 bg-gray-600 hover:bg-gray-700 text-white font-semibold rounded-lg shadow transition-colors">Neue Aufgabe generieren</button>
+                </div>
+            </div>
+            <div id="feedback-infinity" class="mt-4 hidden p-4 rounded-lg font-semibold success-anim"></div>
+        </section>
+
+    </div>
+
+    <script>
+        /* --- Math & Canvas Simulation Logic --- */
+        const canvas = document.getElementById('mathCanvas');
+        const ctx = canvas.getContext('2d');
+        const slider = document.getElementById('x0-slider');
+        const x0Display = document.getElementById('x0-display');
+        
+        let width, height;
+        const scale = 40; // pixels per math unit
+        const originYOffset = 50; // shift origin down slightly
+
+        // Math functions
+        const f = (x) => 0.5 * x * x + 1;
+        const df = (x) => x; // Derivative of 0.5x^2 + 1
+
+        function resizeCanvas() {
+            // Get actual CSS dimensions
+            const rect = canvas.parentElement.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = rect.height;
+            width = canvas.width;
+            height = canvas.height;
+            draw();
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+
+        // Map math coordinates to canvas coordinates
+        function mapX(x) { return width / 2 + x * scale; }
+        function mapY(y) { return height / 2 + originYOffset - y * scale; }
+
+        function draw() {
+            ctx.clearRect(0, 0, width, height);
+            
+            // Draw Grid & Axes
+            ctx.beginPath();
+            ctx.strokeStyle = '#e5e7eb';
+            ctx.lineWidth = 1;
+            for(let i = -20; i <= 20; i++) {
+                ctx.moveTo(mapX(i), 0); ctx.lineTo(mapX(i), height);
+                ctx.moveTo(0, mapY(i)); ctx.lineTo(width, mapY(i));
+            }
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.strokeStyle = '#9ca3af';
+            ctx.lineWidth = 2;
+            ctx.moveTo(0, mapY(0)); ctx.lineTo(width, mapY(0)); // X Axis
+            ctx.moveTo(mapX(0), 0); ctx.lineTo(mapX(0), height); // Y Axis
+            ctx.stroke();
+
+            // Draw f(x)
+            ctx.beginPath();
+            ctx.strokeStyle = '#000000';
+            ctx.lineWidth = 3;
+            for(let px = 0; px <= width; px++) {
+                let mathX = (px - width/2) / scale;
+                let mathY = f(mathX);
+                if(px === 0) ctx.moveTo(px, mapY(mathY));
+                else ctx.lineTo(px, mapY(mathY));
+            }
+            ctx.stroke();
+
+            // Get Current x0
+            const x0 = parseFloat(slider.value);
+            const y0 = f(x0);
+            const mt = df(x0);
+
+            // Update Stats Display
+            document.getElementById('p-x').innerText = x0.toFixed(1);
+            document.getElementById('p-y').innerText = y0.toFixed(2);
+            document.getElementById('m-t').innerText = mt.toFixed(2);
+            
+            let mnDisplay = 'undefiniert';
+            if (Math.abs(mt) >= 0.001) {
+                mnDisplay = (-1 / mt).toFixed(2);
+            }
+            
+            // Task 3: Verstecke m_n, wenn aktiv
+            if (typeof isTask3Active !== 'undefined' && isTask3Active) {
+                document.getElementById('m-n').innerText = '???';
+                document.getElementById('m-n').classList.add('text-red-500', 'font-bold');
+            } else {
+                document.getElementById('m-n').innerText = mnDisplay;
+                document.getElementById('m-n').classList.remove('text-red-500', 'font-bold');
+            }
+
+            // Draw Tangent (t)
+            // t(x) = mt * (x - x0) + y0
+            ctx.beginPath();
+            ctx.strokeStyle = '#ef4444'; // red
+            ctx.lineWidth = 2;
+            ctx.setLineDash([5, 5]);
+            let tStartX = -10, tEndX = 10;
+            let tStartY = mt * (tStartX - x0) + y0;
+            let tEndY = mt * (tEndX - x0) + y0;
+            ctx.moveTo(mapX(tStartX), mapY(tStartY));
+            ctx.lineTo(mapX(tEndX), mapY(tEndY));
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // Draw Normal (n)
+            // mn = -1/mt. If mt == 0, vertical line
+            ctx.beginPath();
+            ctx.strokeStyle = '#16a34a'; // green
+            ctx.lineWidth = 3;
+            if (Math.abs(mt) < 0.001) {
+                // Vertical line at x0
+                ctx.moveTo(mapX(x0), 0);
+                ctx.lineTo(mapX(x0), height);
+            } else {
+                let mn = -1 / mt;
+                let nStartY = mn * (tStartX - x0) + y0;
+                let nEndY = mn * (tEndX - x0) + y0;
+                ctx.moveTo(mapX(tStartX), mapY(nStartY));
+                ctx.lineTo(mapX(tEndX), mapY(nEndY));
+            }
+            ctx.stroke();
+
+            // Draw Point P
+            ctx.beginPath();
+            ctx.fillStyle = '#2563eb'; // blue
+            ctx.arc(mapX(x0), mapY(y0), 6, 0, 2*Math.PI);
+            ctx.fill();
+            ctx.strokeStyle = 'white';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+        }
+
+        slider.addEventListener('input', (e) => {
+            let val = parseFloat(e.target.value);
+            // snap to 0 to avoid messy floats near 0
+            if(Math.abs(val) < 0.05) val = 0; 
+            e.target.value = val;
+            x0Display.innerText = val.toFixed(1);
+            draw();
+        });
+
+        // Initialize Simulation
+        setTimeout(() => {
+            resizeCanvas();
+        }, 100);
+
+        /* --- Validation Logic --- */
+
+        function showFeedback(elementId, isCorrect, message) {
+            const el = document.getElementById(elementId);
+            el.className = `mt-4 p-4 rounded-lg font-semibold success-anim ${isCorrect ? 'bg-green-100 text-green-800 border border-green-300' : 'bg-red-100 text-red-800 border border-red-300'}`;
+            let icon = isCorrect ? '✅ ' : '❌ ';
+            el.innerHTML = icon + message;
+            el.classList.remove('hidden');
+            
+            if(isCorrect) fireConfetti();
+        }
+
+        // Task 1: Discovery
+        function checkDiscovery() {
+            let prod1 = parseFloat(document.getElementById('disc-prod1').value);
+            let prod2 = parseFloat(document.getElementById('disc-prod2').value);
+            let prod3 = parseFloat(document.getElementById('disc-prod3').value);
+            let prod4 = parseFloat(document.getElementById('disc-prod4').value);
+            let prod5 = parseFloat(document.getElementById('disc-prod5').value);
+            let prod6 = parseFloat(document.getElementById('disc-prod6').value);
+            let rule = parseFloat(document.getElementById('disc-rule').value);
+            
+            if (prod1 === -1 && prod2 === -1 && prod3 === -1 && prod4 === -1 && prod5 === -1 && prod6 === -1 && rule === -1) {
+                showFeedback('feedback-discovery', true, "Exzellent! Du hast das Gesetz der Orthogonalität selbst entdeckt: <strong>m<sub>t</sub> &middot; m<sub>n</sub> = -1</strong>.");
+                if (window.MathJax) MathJax.typesetPromise([document.getElementById('feedback-discovery')]);
+            } else {
+                showFeedback('feedback-discovery', false, "Noch nicht ganz. Berechne das Produkt für alle 6 Zeilen. Was kommt dabei immer heraus?");
+            }
+        }
+
+        // Task 2: Lückentext
+        function checkTask2() {
+            let valMt = parseFloat(document.getElementById('task2-mt').value.replace(',','.'));
+            let valMn = parseFloat(document.getElementById('task2-mn').value.replace(',','.'));
+            
+            let mtEl = document.getElementById('task2-mt');
+            let mnEl = document.getElementById('task2-mn');
+
+            // Nutze Toleranz für reibungslose Prüfung
+            let mtCorrect = Math.abs(valMt - (-0.5)) < 0.01;
+            let mnCorrect = Math.abs(valMn - 2) < 0.01;
+            
+            // Farben direkt setzen
+            mtEl.classList.toggle('bg-green-100', mtCorrect);
+            mtEl.classList.toggle('border-green-500', mtCorrect);
+            mtEl.classList.toggle('bg-red-100', !mtCorrect && !isNaN(valMt));
+            mtEl.classList.toggle('border-red-500', !mtCorrect && !isNaN(valMt));
+
+            mnEl.classList.toggle('bg-green-100', mnCorrect);
+            mnEl.classList.toggle('border-green-500', mnCorrect);
+            mnEl.classList.toggle('bg-red-100', !mnCorrect && !isNaN(valMn));
+            mnEl.classList.toggle('border-red-500', !mnCorrect && !isNaN(valMn));
+
+            const fb = document.getElementById('feedback-task2');
+            fb.classList.remove('hidden');
+            
+            if (mtCorrect && mnCorrect) {
+                fb.className = 'mt-4 p-4 rounded-lg font-semibold success-anim bg-green-100 text-green-800 border border-green-300';
+                fb.innerHTML = '✅ Hervorragend! Die Tangentensteigung ist f\'(-0.5) = -0.5. Die Normale hat folglich die Steigung -1/(-0.5) = 2.';
+                fireConfetti();
+            } else if (mtCorrect && !mnCorrect) {
+                fb.className = 'mt-4 p-4 rounded-lg font-semibold success-anim bg-yellow-100 text-yellow-800 border border-yellow-300';
+                fb.innerHTML = '⚠️ <b>Teilweise richtig!</b> Deine Tangente m<sub>t</sub> = -0.5 stimmt. Aber die Normale ist falsch. Denke an die Regel: m<sub>n</sub> = -1 / m<sub>t</sub>';
+            } else if (!mtCorrect && mnCorrect) {
+                fb.className = 'mt-4 p-4 rounded-lg font-semibold success-anim bg-yellow-100 text-yellow-800 border border-yellow-300';
+                fb.innerHTML = '⚠️ <b>Teilweise richtig!</b> Deine Normale m<sub>n</sub> = 2 passt zu m<sub>t</sub> = -0.5, aber den Wert für m<sub>t</sub> hast du falsch eingetragen. Setze x = -0.5 in f\'(x) = x ein.';
+            } else {
+                fb.className = 'mt-4 p-4 rounded-lg font-semibold success-anim bg-red-100 text-red-800 border border-red-300';
+                fb.innerHTML = '❌ Leider beides noch nicht richtig. <br>1. Setze x = -0.5 in f\'(x) = x ein. <br>2. Bilde für die Normale den negativen Kehrwert.';
+            }
+        }
+
+        // Task 3: Slider Goal
+        let isTask3Active = false;
+
+        function startTask3() {
+            isTask3Active = true;
+            document.getElementById('btn-start-task3').classList.add('hidden');
+            document.getElementById('btn-check-task3').classList.remove('hidden');
+            draw(); // neu zeichnen, um m_n auszublenden
+        }
+
+        function checkTask3() {
+            let currentX0 = parseFloat(slider.value);
+            // Goal: mn = 0.5. mn = -1/mt => 0.5 = -1/x => x = -2.
+            if (currentX0 === -2) {
+                showFeedback('feedback-task3', true, "Fantastisch! Bei x₀ = -2 ist die Tangentensteigung m_t = -2. Der negative Kehrwert ist m_n = 0.5.");
+                isTask3Active = false; // Wieder einblenden
+                document.getElementById('btn-start-task3').classList.remove('hidden');
+                document.getElementById('btn-check-task3').classList.add('hidden');
+                draw();
+            } else {
+                let currentMn = (currentX0 !== 0) ? (-1 / currentX0).toFixed(2) : 'undefiniert';
+                showFeedback('feedback-task3', false, `Aktuell bist du bei x₀ = ${currentX0}. Dort ist m_n = ${currentMn}. Suche weiter!`);
+            }
+        }
+
+        /* --- Drag and Drop Logic (Task 4) --- */
+        let draggedItem = null;
+
+        const draggables = document.querySelectorAll('.draggable');
+        const dropzones = document.querySelectorAll('.dropzone');
+        const container = document.getElementById('draggables-container');
+
+        draggables.forEach(draggable => {
+            draggable.addEventListener('dragstart', (e) => {
+                draggedItem = draggable;
+                e.dataTransfer.setData('text/plain', draggable.dataset.value);
+                setTimeout(() => draggable.style.opacity = '0.5', 0);
+            });
+
+            draggable.addEventListener('dragend', () => {
+                draggedItem.style.opacity = '1';
+                draggedItem = null;
+            });
+        });
+
+        dropzones.forEach(zone => {
+            zone.addEventListener('dragover', e => {
+                e.preventDefault(); // allow drop
+                zone.classList.add('drag-over');
+            });
+
+            zone.addEventListener('dragleave', () => {
+                zone.classList.remove('drag-over');
+            });
+
+            zone.addEventListener('drop', e => {
+                e.preventDefault();
+                zone.classList.remove('drag-over');
+                
+                if (draggedItem) {
+                    // If zone already has a child, move it back to container
+                    if (zone.children.length > 0) {
+                        container.appendChild(zone.children[0]);
+                    }
+                    zone.appendChild(draggedItem);
+                }
+            });
+        });
+
+        // Allow dropping back into the container
+        container.addEventListener('dragover', e => e.preventDefault());
+        container.addEventListener('drop', e => {
+            e.preventDefault();
+            if (draggedItem) {
+                container.appendChild(draggedItem);
+            }
+        });
+
+        function checkTask4() {
+            let allCorrect = true;
+            let missing = false;
+
+            dropzones.forEach(zone => {
+                if (zone.children.length === 0) {
+                    missing = true;
+                    allCorrect = false;
+                } else {
+                    let droppedVal = zone.children[0].dataset.value;
+                    let expectedVal = zone.dataset.expected;
+                    if (droppedVal !== expectedVal) {
+                        allCorrect = false;
+                    }
+                }
+            });
+
+            if (missing) {
+                showFeedback('feedback-task4', false, "Bitte fülle zuerst alle Lücken aus!");
+            } else if (allCorrect) {
+                showFeedback('feedback-task4', true, "Brillant! Du hast die Normalengleichung n(x) = -1/2 &middot; (x - 2) + 3 erfolgreich konstruiert!");
+            } else {
+                showFeedback('feedback-task4', false, "Da stimmt noch etwas nicht. Denke an die Formel: m_n &middot; (x - x_0) + y_0.");
+            }
+        }
+
+        /* --- Task 5: Plot & Verify Logic --- */
+        const task5Data = {
+            'a': { f: (x) => x*x, x0: 2, y0: 4, mt: 4, tt: -4, mn: -0.25, tn: 4.5, at: 75.96, an: -14.04 },
+            'b': { f: (x) => -0.125*x*x, x0: -2, y0: -0.5, mt: 0.5, tt: 0.5, mn: -2, tn: -4.5, at: 26.57, an: -63.43 },
+            'c': { f: (x) => x*x - 5*x, x0: 0, y0: 0, mt: -5, tt: 0, mn: 0.2, tn: 0, at: -78.69, an: 11.31 }
+        };
+
+        function updateTask5UI() {
+            document.getElementById('plot-container').classList.add('hidden');
+            
+            let inputs = ['plot-mt', 'plot-tt', 'plot-at', 'plot-mn', 'plot-tn', 'plot-an'];
+            inputs.forEach(id => {
+                let el = document.getElementById(id);
+                el.value = '';
+                el.classList.remove('bg-green-100', 'border-green-500', 'bg-red-100', 'border-red-500');
+                el.classList.add('bg-transparent', 'border-rose-300', 'focus:border-rose-600');
+            });
+            
+            document.getElementById('feedback-task5').classList.add('hidden');
+        }
+
+        // Akzeptiert Winkel mit leichten Rundungsabweichungen und behandelt 180° Äquivalente (z.B. -14° und 166°)
+        function checkAngle(input, expected) {
+            if (isNaN(input)) return false;
+            let diff = Math.abs(input - expected) % 180;
+            return diff < 0.2 || diff > 179.8;
+        }
+
+        function checkAndPlotTask5() {
+            let taskKey = document.getElementById('task5-select').value;
+            let data = task5Data[taskKey];
+
+            let mtEl = document.getElementById('plot-mt');
+            let ttEl = document.getElementById('plot-tt');
+            let atEl = document.getElementById('plot-at');
+            let mnEl = document.getElementById('plot-mn');
+            let tnEl = document.getElementById('plot-tn');
+            let anEl = document.getElementById('plot-an');
+
+            let mtInput = parseFloat(mtEl.value.replace(',','.'));
+            let ttInput = parseFloat(ttEl.value.replace(',','.'));
+            let atInput = parseFloat(atEl.value.replace(',','.'));
+            let mnInput = parseFloat(mnEl.value.replace(',','.'));
+            let tnInput = parseFloat(tnEl.value.replace(',','.'));
+            let anInput = parseFloat(anEl.value.replace(',','.'));
+            
+            let container = document.getElementById('plot-container');
+            container.classList.remove('hidden');
+            
+            let mtCorrect = Math.abs(mtInput - data.mt) < 0.05;
+            let ttCorrect = Math.abs(ttInput - data.tt) < 0.05;
+            let atCorrect = checkAngle(atInput, data.at);
+            
+            let mnCorrect = Math.abs(mnInput - data.mn) < 0.05;
+            let tnCorrect = Math.abs(tnInput - data.tn) < 0.05;
+            let anCorrect = checkAngle(anInput, data.an);
+            
+            // Felder passend färben
+            const setInputColor = (el, isCorrect) => {
+                if (el.value === '') return; 
+                el.classList.remove('bg-transparent', 'border-rose-300', 'focus:border-rose-600', 'bg-green-100', 'border-green-500', 'bg-red-100', 'border-red-500');
+                if (isCorrect) {
+                    el.classList.add('bg-green-100', 'border-green-500');
+                } else {
+                    el.classList.add('bg-red-100', 'border-red-500');
+                }
+            };
+
+            setInputColor(mtEl, mtCorrect);
+            setInputColor(ttEl, ttCorrect);
+            setInputColor(atEl, atCorrect);
+            setInputColor(mnEl, mnCorrect);
+            setInputColor(tnEl, tnCorrect);
+            setInputColor(anEl, anCorrect);
+
+            let allCorrect = mtCorrect && ttCorrect && atCorrect && mnCorrect && tnCorrect && anCorrect;
+            
+            if (allCorrect) {
+                let successMsg = "Perfekt! Alle Geradengleichungen und Winkel sind korrekt. Betrachte unten den erstellten Plot zur Überprüfung!";
+                if (taskKey === 'a') {
+                    successMsg += "<br><br>💡 <b>Klasse!</b> Vergiss nicht, oben im Dropdown-Menü auch noch die Teilaufgaben <b>b)</b> und <b>c)</b> auszuwählen und zu bearbeiten!";
+                } else if (taskKey === 'b') {
+                    successMsg += "<br><br>💡 <b>Super!</b> Eine fehlt noch – wähle oben im Dropdown-Menü noch Teilaufgabe <b>c)</b> aus!";
+                } else if (taskKey === 'c') {
+                    successMsg += "<br><br>🎉 <b>Hervorragend!</b> Du hast alle Teilaufgaben dieser Übung erfolgreich gemeistert!";
+                }
+                showFeedback('feedback-task5', true, successMsg);
+            } else {
+                let msg = "Es gibt noch Fehler (siehe farbige Markierungen):<br>";
+                if (!mtCorrect || !ttCorrect) msg += "- <b>Tangente:</b> Überprüfe y = m<sub>t</sub> &middot; (x - x<sub>0</sub>) + y<sub>0</sub><br>";
+                if (!atCorrect) msg += "- <b>Winkel &alpha;<sub>t</sub>:</b> Überprüfe tan(&alpha;<sub>t</sub>) = m<sub>t</sub><br>";
+                if (!mnCorrect || !tnCorrect) msg += "- <b>Normale:</b> Überprüfe m<sub>n</sub> = -1 / m<sub>t</sub><br>";
+                if (!anCorrect) msg += "- <b>Winkel &alpha;<sub>n</sub>:</b> Überprüfe tan(&alpha;<sub>n</sub>) = m<sub>n</sub><br>";
+                msg += "<br>Im Graphen siehst du nun <b>deine</b> eingegebenen Geraden. Untersuche visuell, ob sie wirklich senkrecht zueinander und zum Graphen stehen.";
+                showFeedback('feedback-task5', false, msg);
+            }
+            
+            plotVerificationGraphTask5(taskKey, mtInput, ttInput, mnInput, tnInput);
+        }
+
+        function plotVerificationGraphTask5(taskKey, userMt, userTt, userMn, userTn) {
+            const vCanvas = document.getElementById('verifyCanvas');
+            const vCtx = vCanvas.getContext('2d');
+            const rect = vCanvas.parentElement.getBoundingClientRect();
+            vCanvas.width = rect.width;
+            vCanvas.height = rect.height;
+            
+            let vWidth = vCanvas.width;
+            let vHeight = vCanvas.height;
+            let vScale = 25; // Zoom-Faktor
+            
+            let data = task5Data[taskKey];
+            
+            // Koordinatenursprung je nach Aufgabe leicht verschieben, damit P mittig bleibt
+            let yOffset = (taskKey === 'a') ? 60 : 0;
+            
+            function vMapX(x) { return vWidth / 2 + x * vScale; }
+            function vMapY(y) { return vHeight / 2 - y * vScale + yOffset; }
+
+            vCtx.clearRect(0, 0, vWidth, vHeight);
+            
+            // Grid
+            vCtx.beginPath();
+            vCtx.strokeStyle = '#e5e7eb';
+            for(let i = -20; i <= 20; i++) {
+                vCtx.moveTo(vMapX(i), 0); vCtx.lineTo(vMapX(i), vHeight);
+                vCtx.moveTo(0, vMapY(i)); vCtx.lineTo(vWidth, vMapY(i));
+            }
+            vCtx.stroke();
+
+            // Achsen
+            vCtx.beginPath();
+            vCtx.strokeStyle = '#9ca3af';
+            vCtx.lineWidth = 2;
+            vCtx.moveTo(0, vMapY(0)); vCtx.lineTo(vWidth, vMapY(0));
+            vCtx.moveTo(vMapX(0), 0); vCtx.lineTo(vMapX(0), vHeight);
+            vCtx.stroke();
+
+            // Funktion f(x) plotten
+            vCtx.beginPath();
+            vCtx.strokeStyle = '#000000';
+            vCtx.lineWidth = 3;
+            for(let px = 0; px <= vWidth; px++) {
+                let mathX = (px - vWidth/2) / vScale;
+                let mathY = data.f(mathX);
+                if(px === 0) vCtx.moveTo(px, vMapY(mathY));
+                else vCtx.lineTo(px, vMapY(mathY));
+            }
+            vCtx.stroke();
+
+            // Usereingabe Tangente (Rot) plotten
+            if (!isNaN(userMt) && !isNaN(userTt)) {
+                vCtx.beginPath();
+                vCtx.strokeStyle = '#ef4444'; 
+                vCtx.lineWidth = 2;
+                let startX = -20, endX = 20;
+                vCtx.moveTo(vMapX(startX), vMapY(userMt * startX + userTt));
+                vCtx.lineTo(vMapX(endX), vMapY(userMt * endX + userTt));
+                vCtx.stroke();
+            }
+            
+            // Usereingabe Normale (Grün) plotten
+            if (!isNaN(userMn) && !isNaN(userTn)) {
+                vCtx.beginPath();
+                vCtx.strokeStyle = '#16a34a'; 
+                vCtx.lineWidth = 2;
+                let startX = -20, endX = 20;
+                vCtx.moveTo(vMapX(startX), vMapY(userMn * startX + userTn));
+                vCtx.lineTo(vMapX(endX), vMapY(userMn * endX + userTn));
+                vCtx.stroke();
+            }
+
+            // Berührpunkt P(x0|y0) markieren
+            vCtx.beginPath();
+            vCtx.fillStyle = '#2563eb';
+            vCtx.arc(vMapX(data.x0), vMapY(data.y0), 6, 0, 2*Math.PI);
+            vCtx.fill();
+            vCtx.strokeStyle = '#ffffff';
+            vCtx.lineWidth = 2;
+            vCtx.stroke();
+        }
+
+        /* --- Task 6: Infinity Trainer Logic --- */
+        const infinityFunctions = [
+            { text: "\\( f(x) = 0.5x^2 + 1 \\)", f: x => 0.5*x*x + 1, df: x => x, pool: [-2, -1, 1, 2, 3] },
+            { text: "\\( f(x) = -x^2 + 4 \\)", f: x => -x*x + 4, df: x => -2*x, pool: [-1, -0.5, 0.5, 1, 1.5] },
+            { text: "\\( f(x) = \\frac{1}{4}x^3 \\)", f: x => 0.25*x*x*x, df: x => 0.75*x*x, pool: [-2, 2] },
+            { text: "\\( f(x) = x^2 - 2x \\)", f: x => x*x - 2*x, df: x => 2*x - 2, pool: [-1, 0, 2, 3] }
+        ];
+
+        let currentInfData = null;
+        let currentInfX0 = 0;
+
+        function generateInfinity() {
+            // Wähle eine zufällige Funktion und ein x0
+            currentInfData = infinityFunctions[Math.floor(Math.random() * infinityFunctions.length)];
+            currentInfX0 = currentInfData.pool[Math.floor(Math.random() * currentInfData.pool.length)];
+            
+            document.getElementById('infinity-function').innerHTML = `Gegeben: ${currentInfData.text}`;
+            document.getElementById('infinity-question').innerHTML = `Bestimme die Normale an der Stelle <strong>\\( x_0 = ${currentInfX0} \\)</strong>.`;
+            document.getElementById('infinity-inputs').classList.remove('hidden');
+            document.getElementById('btn-inf-check').classList.remove('hidden');
+            
+            // Felder zurücksetzen
+            document.getElementById('inf-m').value = '';
+            document.getElementById('inf-t').value = '';
+            document.getElementById('inf-m').classList.remove('bg-green-100', 'border-green-500', 'bg-red-100', 'border-red-500');
+            document.getElementById('inf-t').classList.remove('bg-green-100', 'border-green-500', 'bg-red-100', 'border-red-500');
+            document.getElementById('feedback-infinity').classList.add('hidden');
+            
+            if (window.MathJax) {
+                MathJax.typesetPromise([document.getElementById('infinity-function'), document.getElementById('infinity-question')]);
+            }
+        }
+
+        function checkInfinity() {
+            let mIn = parseFloat(document.getElementById('inf-m').value.replace(',','.'));
+            let tIn = parseFloat(document.getElementById('inf-t').value.replace(',','.'));
+            
+            let y0 = currentInfData.f(currentInfX0);
+            let mt = currentInfData.df(currentInfX0);
+            let mn = -1 / mt;
+            let expectedT = y0 - (mn * currentInfX0);
+            
+            let mCorrect = Math.abs(mIn - mn) < 0.01;
+            let tCorrect = Math.abs(tIn - expectedT) < 0.01;
+
+            let mEl = document.getElementById('inf-m');
+            let tEl = document.getElementById('inf-t');
+            
+            mEl.classList.toggle('bg-green-100', mCorrect); mEl.classList.toggle('border-green-500', mCorrect);
+            mEl.classList.toggle('bg-red-100', !mCorrect); mEl.classList.toggle('border-red-500', !mCorrect);
+            
+            tEl.classList.toggle('bg-green-100', tCorrect); tEl.classList.toggle('border-green-500', tCorrect);
+            tEl.classList.toggle('bg-red-100', !tCorrect); tEl.classList.toggle('border-red-500', !tCorrect);
+            
+            if (mCorrect && tCorrect) {
+                showFeedback('feedback-infinity', true, `Richtig! n(x) = ${mn.toFixed(2)}x + ${expectedT.toFixed(2)}`);
+            } else {
+                showFeedback('feedback-infinity', false, `Nicht ganz. Überprüfe deine Rechnung: m_n = -1/f'(${currentInfX0}) und t berechnet sich über den Punkt (${currentInfX0} | ${y0}).`);
+            }
+        }
+
+        /* --- Simple Confetti Animation for extra motivation --- */
+        function fireConfetti() {
+            const cvs = document.getElementById('confetti');
+            const cx = cvs.getContext('2d');
+            cvs.width = window.innerWidth;
+            cvs.height = window.innerHeight;
+            
+            let particles = [];
+            let colors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
+            
+            for(let i = 0; i < 100; i++) {
+                particles.push({
+                    x: cvs.width / 2,
+                    y: cvs.height / 2 + 100,
+                    r: Math.random() * 6 + 2,
+                    dx: Math.random() * 10 - 5,
+                    dy: Math.random() * -10 - 5,
+                    color: colors[Math.floor(Math.random() * colors.length)]
+                });
+            }
+
+            function renderConfetti() {
+                cx.clearRect(0,0,cvs.width,cvs.height);
+                let active = false;
+                particles.forEach(p => {
+                    p.dy += 0.3; // gravity
+                    p.x += p.dx;
+                    p.y += p.dy;
+                    if(p.y < cvs.height) active = true;
+                    
+                    cx.beginPath();
+                    cx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+                    cx.fillStyle = p.color;
+                    cx.fill();
+                });
+
+                if(active) requestAnimationFrame(renderConfetti);
+                else cx.clearRect(0,0,cvs.width,cvs.height);
+            }
+            renderConfetti();
+        }
+
+    </script>
+</body>
+</html>
