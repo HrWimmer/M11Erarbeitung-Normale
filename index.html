@@ -17,12 +17,12 @@
         }
 
         .draggable {
-            cursor: grab;
+            cursor: pointer; /* Changed for Tap-to-Place */
             transition: transform 0.1s;
+            user-select: none;
         }
         
         .draggable:active {
-            cursor: grabbing;
             transform: scale(0.95);
         }
 
@@ -37,6 +37,7 @@
             background-color: #f9fafb;
             vertical-align: middle;
             transition: all 0.2s;
+            cursor: pointer;
         }
 
         .dropzone.drag-over {
@@ -146,7 +147,7 @@
             <p class="text-gray-600">Q11 Mathematik – Gymnasium Bayern</p>
         </header>
 
-        <!-- Intro Text -->
+        <!-- Intro Text & Motivation -->
         <section class="bg-white rounded-2xl shadow-sm p-8">
             <h2 class="text-2xl font-semibold mb-4 text-blue-700">Worum geht's?</h2>
             
@@ -155,7 +156,7 @@
                 <p class="text-sm text-gray-700">
                     Stell dir vor, du entwickelst ein Videospiel oder eine 3D-Animation. Licht trifft auf einen gekrümmten Gegenstand (z.B. einen Spiegel oder ein Auto). 
                     Um zu berechnen, in welche Richtung das Licht <strong>reflektiert</strong> wird, benötigt der Computer das sogenannte <strong>Lot</strong> – eine Linie, die exakt senkrecht auf der Oberfläche steht.
-                    In der Mathematik nennen wir diese Linie die <strong>Normale</strong>.
+                    In der Mathematik nennen wir diese Linie die <strong>Normale</strong>. Auch in der Physik (z.B. zur Berechnung von Kräften in einer Kurve) ist sie unverzichtbar!
                 </p>
                 
                 <div class="mt-4 mb-2 flex justify-center bg-white p-4 rounded-xl border border-blue-100 shadow-sm overflow-hidden">
@@ -195,7 +196,7 @@
             </div>
 
             <p class="mb-4">
-                Ihr wisst bereits: Die Tangente berührt den Graphen einer Funktion und hat dort die Steigung \( m_t = f'(x_0) \).
+                Servus! Ihr wisst bereits: Die Tangente berührt den Graphen einer Funktion und hat dort die Steigung \( m_t = f'(x_0) \).
             </p>
             <p>
                 Heute lernen wir die <strong>Normale</strong> kennen. Sie ist eine Gerade, die im Berührpunkt \( P \) <strong>senkrecht (orthogonal)</strong> zur Tangente verläuft.
@@ -333,11 +334,11 @@
                 Zuerst berechnen wir: \( f(2) = 3 \) und \( f'(2) = 2 \).
             </p>
             <p class="mb-4 text-gray-700">
-                Setze nun die passenden Bausteine per Drag & Drop in die Platzhalter ein, um die Normalengleichung <strong>\( n(x) \)</strong> für dieses konkrete Beispiel zu konstruieren!
+                Setze nun die passenden Bausteine per Drag & Drop <strong>(oder durch Antippen)</strong> in die Platzhalter ein, um die Normalengleichung <strong>\( n(x) \)</strong> zu konstruieren!
             </p>
             
             <!-- Bausteine -->
-            <div class="flex flex-wrap gap-3 mb-8 p-4 bg-gray-100 rounded-xl" id="draggables-container">
+            <div class="flex flex-wrap gap-3 mb-8 p-4 bg-gray-100 rounded-xl min-h-[60px]" id="draggables-container">
                 <div class="draggable bg-white px-4 py-2 border border-gray-300 shadow-sm rounded font-mono font-bold text-lg text-emerald-800" draggable="true" data-value="-1">-1</div>
                 <div class="draggable bg-white px-4 py-2 border border-gray-300 shadow-sm rounded font-mono font-bold text-lg text-emerald-800" draggable="true" data-value="2">2</div>
                 <div class="draggable bg-white px-4 py-2 border border-gray-300 shadow-sm rounded font-mono font-bold text-lg text-emerald-800" draggable="true" data-value="2">2</div>
@@ -366,10 +367,10 @@
 
         <!-- Task 5: Grafische Überprüfung (Schulbuchaufgabe) -->
         <section class="bg-white rounded-2xl shadow-sm p-8 border-l-4 border-rose-500">
-            <h2 class="text-xl font-semibold mb-3 text-rose-700">Aufgabe 5: Schulbuchaufgabe S. 129/9</h2>
+            <h2 class="text-xl font-semibold mb-3 text-rose-700">Aufgabe 5: Schulbuchaufgabe auswerten</h2>
             <p class="mb-4 text-gray-700 font-medium">
                 Ermitteln Sie die Gleichungen der Tangente und der Normalen an den Graphen \( G_f \) der Funktion \( f \) im Punkt \( P \). 
-                Bestimmen Sie die Größe der Steigungswinkel beider Geraden. Notieren Sie sich die ausführliche Rechnung im Heft und nutzen Sie die Eingaben zur Kontrolle.
+                Bestimmen Sie die Größe der Steigungswinkel beider Geraden.
             </p>
             
             <div class="mb-6 bg-rose-50 p-4 rounded-xl border border-rose-100">
@@ -469,7 +470,6 @@
         const df = (x) => x; // Derivative of 0.5x^2 + 1
 
         function resizeCanvas() {
-            // Get actual CSS dimensions
             const rect = canvas.parentElement.getBoundingClientRect();
             canvas.width = rect.width;
             canvas.height = rect.height;
@@ -541,7 +541,6 @@
             }
 
             // Draw Tangent (t)
-            // t(x) = mt * (x - x0) + y0
             ctx.beginPath();
             ctx.strokeStyle = '#ef4444'; // red
             ctx.lineWidth = 2;
@@ -555,12 +554,10 @@
             ctx.setLineDash([]);
 
             // Draw Normal (n)
-            // mn = -1/mt. If mt == 0, vertical line
             ctx.beginPath();
             ctx.strokeStyle = '#16a34a'; // green
             ctx.lineWidth = 3;
             if (Math.abs(mt) < 0.001) {
-                // Vertical line at x0
                 ctx.moveTo(mapX(x0), 0);
                 ctx.lineTo(mapX(x0), height);
             } else {
@@ -584,7 +581,6 @@
 
         slider.addEventListener('input', (e) => {
             let val = parseFloat(e.target.value);
-            // snap to 0 to avoid messy floats near 0
             if(Math.abs(val) < 0.05) val = 0; 
             e.target.value = val;
             x0Display.innerText = val.toFixed(1);
@@ -601,7 +597,7 @@
         function showFeedback(elementId, isCorrect, message) {
             const el = document.getElementById(elementId);
             el.className = `mt-4 p-4 rounded-lg font-semibold success-anim ${isCorrect ? 'bg-green-100 text-green-800 border border-green-300' : 'bg-red-100 text-red-800 border border-red-300'}`;
-            let icon = isCorrect ? '✅ ' : '❌ ';
+            let icon = isCorrect ? '✅ ' : (message.includes('Teilweise') ? '⚠️ ' : '❌ ');
             el.innerHTML = icon + message;
             el.classList.remove('hidden');
             
@@ -634,11 +630,11 @@
             let mtEl = document.getElementById('task2-mt');
             let mnEl = document.getElementById('task2-mn');
 
-            // Nutze Toleranz für reibungslose Prüfung
+            // Toleranz
             let mtCorrect = Math.abs(valMt - (-0.5)) < 0.01;
             let mnCorrect = Math.abs(valMn - 2) < 0.01;
             
-            // Farben direkt setzen
+            // Farben setzen
             mtEl.classList.toggle('bg-green-100', mtCorrect);
             mtEl.classList.toggle('border-green-500', mtCorrect);
             mtEl.classList.toggle('bg-red-100', !mtCorrect && !isNaN(valMt));
@@ -680,7 +676,6 @@
 
         function checkTask3() {
             let currentX0 = parseFloat(slider.value);
-            // Goal: mn = 0.5. mn = -1/mt => 0.5 = -1/x => x = -2.
             if (currentX0 === -2) {
                 showFeedback('feedback-task3', true, "Fantastisch! Bei x₀ = -2 ist die Tangentensteigung m_t = -2. Der negative Kehrwert ist m_n = 0.5.");
                 isTask3Active = false; // Wieder einblenden
@@ -693,14 +688,16 @@
             }
         }
 
-        /* --- Drag and Drop Logic (Task 4) --- */
+        /* --- Drag and Drop & Touch Logic (Task 4) --- */
         let draggedItem = null;
+        let selectedTouchItem = null; // Für iPad "Tap to place"
 
         const draggables = document.querySelectorAll('.draggable');
         const dropzones = document.querySelectorAll('.dropzone');
         const container = document.getElementById('draggables-container');
 
         draggables.forEach(draggable => {
+            // --- Klassisches Mouse-Drag ---
             draggable.addEventListener('dragstart', (e) => {
                 draggedItem = draggable;
                 e.dataTransfer.setData('text/plain', draggable.dataset.value);
@@ -711,11 +708,28 @@
                 draggedItem.style.opacity = '1';
                 draggedItem = null;
             });
+
+            // --- Touch/Klick Logik fürs iPad ---
+            draggable.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (selectedTouchItem && selectedTouchItem !== draggable) {
+                    selectedTouchItem.classList.remove('ring-4', 'ring-emerald-400', 'scale-110');
+                }
+                
+                if (selectedTouchItem === draggable) {
+                    selectedTouchItem.classList.remove('ring-4', 'ring-emerald-400', 'scale-110');
+                    selectedTouchItem = null;
+                } else {
+                    selectedTouchItem = draggable;
+                    selectedTouchItem.classList.add('ring-4', 'ring-emerald-400', 'scale-110', 'transition-all');
+                }
+            });
         });
 
         dropzones.forEach(zone => {
+            // --- Klassisches Mouse-Drop ---
             zone.addEventListener('dragover', e => {
-                e.preventDefault(); // allow drop
+                e.preventDefault(); 
                 zone.classList.add('drag-over');
             });
 
@@ -728,21 +742,42 @@
                 zone.classList.remove('drag-over');
                 
                 if (draggedItem) {
-                    // If zone already has a child, move it back to container
                     if (zone.children.length > 0) {
                         container.appendChild(zone.children[0]);
                     }
                     zone.appendChild(draggedItem);
                 }
             });
+
+            // --- Touch/Klick Logik fürs iPad ---
+            zone.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (selectedTouchItem) {
+                    if (zone.children.length > 0) {
+                        container.appendChild(zone.children[0]);
+                    }
+                    zone.appendChild(selectedTouchItem);
+                    
+                    selectedTouchItem.classList.remove('ring-4', 'ring-emerald-400', 'scale-110');
+                    selectedTouchItem = null;
+                }
+            });
         });
 
-        // Allow dropping back into the container
+        // Zurücklegen in den Pool
         container.addEventListener('dragover', e => e.preventDefault());
         container.addEventListener('drop', e => {
             e.preventDefault();
             if (draggedItem) {
                 container.appendChild(draggedItem);
+            }
+        });
+        
+        container.addEventListener('click', () => {
+            if (selectedTouchItem) {
+                container.appendChild(selectedTouchItem);
+                selectedTouchItem.classList.remove('ring-4', 'ring-emerald-400', 'scale-110');
+                selectedTouchItem = null;
             }
         });
 
@@ -793,7 +828,7 @@
             document.getElementById('feedback-task5').classList.add('hidden');
         }
 
-        // Akzeptiert Winkel mit leichten Rundungsabweichungen und behandelt 180° Äquivalente (z.B. -14° und 166°)
+        // Akzeptiert Winkel mit leichten Rundungsabweichungen und behandelt 180° Äquivalente
         function checkAngle(input, expected) {
             if (isNaN(input)) return false;
             let diff = Math.abs(input - expected) % 180;
@@ -966,7 +1001,6 @@
         let currentInfX0 = 0;
 
         function generateInfinity() {
-            // Wähle eine zufällige Funktion und ein x0
             currentInfData = infinityFunctions[Math.floor(Math.random() * infinityFunctions.length)];
             currentInfX0 = currentInfData.pool[Math.floor(Math.random() * currentInfData.pool.length)];
             
@@ -975,7 +1009,6 @@
             document.getElementById('infinity-inputs').classList.remove('hidden');
             document.getElementById('btn-inf-check').classList.remove('hidden');
             
-            // Felder zurücksetzen
             document.getElementById('inf-m').value = '';
             document.getElementById('inf-t').value = '';
             document.getElementById('inf-m').classList.remove('bg-green-100', 'border-green-500', 'bg-red-100', 'border-red-500');
@@ -1015,7 +1048,7 @@
             }
         }
 
-        /* --- Simple Confetti Animation for extra motivation --- */
+        /* --- Simple Confetti Animation --- */
         function fireConfetti() {
             const cvs = document.getElementById('confetti');
             const cx = cvs.getContext('2d');
